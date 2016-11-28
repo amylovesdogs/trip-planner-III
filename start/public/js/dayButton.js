@@ -1,3 +1,8 @@
+var $dayButtons;
+  $(function () {
+    $dayButtons = $('.day-buttons');
+  });
+
 function dayButton(number) {
     this.number = number;
     this.buildButton().showButton();
@@ -9,16 +14,21 @@ dayButton.prototype.buildButton = function () {
     var self = this;
     this.$button.on('click', function (){
       this.blur(); // removes focus box from buttons
-      tripModule.switchTo(self);
+      $.get('/api/days/'+self.number)
+      .then (function(returnedDay){
+          console.log("Returned day: ",returnedDay);
+          tripModule.switchTo(dayModule.create(returnedDay));
+      })
+      .catch( console.error.bind(console) );
     });
     return this;
   };
 
-  dayButton.prototype.deactivate() {
+  dayButton.prototype.deactivate = function() {
     this.$button.removeClass('current-day');
   }
 
-  dayButton.prototype.activate() {
+  dayButton.prototype.activate = function() {
     this.$button.addClass('current-day');
   }
 

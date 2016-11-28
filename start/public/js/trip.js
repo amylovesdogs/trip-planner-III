@@ -1,5 +1,6 @@
 'use strict';
 /* global $ dayModule */
+/* global $ dayButton */
 
 
 /**
@@ -21,7 +22,7 @@ var tripModule = (function () {
   // application state
 
   var currentDay;
-  var dayButtons = [];
+  var dayButtons = [{}];
 
   // jQuery selections
 
@@ -50,14 +51,16 @@ var tripModule = (function () {
 
   function addDay () {
     if (this && this.blur) this.blur(); // removes focus box from buttons
-    numDays++;
-    var newDay = dayModule.create({ number: numDays }); // dayModule
-    if (numDays === 1) {
+    var newDay = dayModule.create({ number: dayButtons.length }); // dayModule
+    if (dayButtons.length === 1) {
       currentDay = newDay;
     }
-    switchTo(newDay);
     // save to database
     $.post('/api/days/'+newDay.number)
+    .then (function(){
+      dayButtons.push(new dayButton(newDay.number));
+      switchTo(newDay);
+    })
     .catch( console.error.bind(console) );
   }
 
@@ -99,9 +102,8 @@ var tripModule = (function () {
         if (returnedDays) {
           console.log("Returned days: ",returnedDays);
           returnedDays.forEach(function(curVal, index) {
-              dayButtons.push(new dayButton(index));
-          }
-          numDays = returnedDays.length - 1;
+              dayButtons.push(new dayButton(index+1));
+          })
           currentDay = dayModule.create(returnedDays[0]);
           switchTo(currentDay);
         }
@@ -109,6 +111,7 @@ var tripModule = (function () {
           $(addDay);
         }
       })
+      .catch( console.error.bind(console) );
     },
 
     switchTo: switchTo,

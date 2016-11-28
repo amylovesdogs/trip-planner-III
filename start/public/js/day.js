@@ -17,9 +17,9 @@ var dayModule = (function () {
 
   // jQuery selections
 
-  var $dayButtons, $dayTitle;
+  var $dayTitle;
   $(function () {
-    $dayButtons = $('.day-buttons');
+    //$dayButtons = $('.day-buttons');
     $dayTitle = $('#day-title > span');
   });
 
