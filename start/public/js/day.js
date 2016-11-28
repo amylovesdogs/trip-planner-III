@@ -37,7 +37,7 @@ var dayModule = (function () {
     this.restaurants = this.restaurants.map(attractionsModule.getEnhanced);
     this.activities = this.activities.map(attractionsModule.getEnhanced);
     // remainder of constructor
-    this.buildButton().showButton();
+    //this.buildButton().showButton();
   }
 
   // automatic day button handling
@@ -47,30 +47,30 @@ var dayModule = (function () {
     this.$button.text(num);
   };
 
-  Day.prototype.buildButton = function () {
-    this.$button = $('<button class="btn btn-circle day-btn"></button>')
-      .text(this.number);
-    var self = this;
-    this.$button.on('click', function (){
-      this.blur(); // removes focus box from buttons
-      tripModule.switchTo(self);
-    });
-    return this;
-  };
+  // Day.prototype.buildButton = function () {
+  //   this.$button = $('<button class="btn btn-circle day-btn"></button>')
+  //     .text(this.number);
+  //   var self = this;
+  //   this.$button.on('click', function (){
+  //     this.blur(); // removes focus box from buttons
+  //     tripModule.switchTo(self);
+  //   });
+  //   return this;
+  // };
 
-  Day.prototype.showButton = function () {
-    this.$button.appendTo($dayButtons);
-    return this;
-  };
+  // Day.prototype.showButton = function () {
+  //   this.$button.appendTo($dayButtons);
+  //   return this;
+  // };
 
-  Day.prototype.hideButton = function () {
-    this.$button.detach(); // detach removes from DOM but not from memory
-    return this;
-  };
+  // Day.prototype.hideButton = function () {
+  //   this.$button.detach(); // detach removes from DOM but not from memory
+  //   return this;
+  // };
 
   Day.prototype.show = function () {
     // day UI
-    this.$button.addClass('current-day');
+    //this.$button.addClass('current-day');
     $dayTitle.text('Day ' + this.number);
     // attractions UI
     function show (attraction) { attraction.show(); }
@@ -81,7 +81,7 @@ var dayModule = (function () {
 
   Day.prototype.hide = function () {
     // day UI
-    this.$button.removeClass('current-day');
+    //this.$button.removeClass('current-day');
     $dayTitle.text('Day not Loaded');
     // attractions UI
     function hide (attraction) { attraction.hide(); }

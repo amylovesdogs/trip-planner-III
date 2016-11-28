@@ -1,6 +1,7 @@
 'use strict';
 /* global $ dayModule */
 
+
 /**
  * A module for managing multiple days & application state.
  * Days are held in a `days` array, with a reference to the `currentDay`.
@@ -19,8 +20,8 @@ var tripModule = (function () {
 
   // application state
 
-  var days = [],
-      currentDay;
+  var currentDay;
+  var dayButtons = [];
 
   // jQuery selections
 
@@ -34,8 +35,10 @@ var tripModule = (function () {
 
   function switchTo (newCurrentDay) {
     if (currentDay) currentDay.hide();
+    dayButtons[currentDay.number].deactivate();
     currentDay = newCurrentDay;
     currentDay.show();
+    dayButtons[currentDay.number].activate();
   }
 
   // jQuery event binding
@@ -47,41 +50,73 @@ var tripModule = (function () {
 
   function addDay () {
     if (this && this.blur) this.blur(); // removes focus box from buttons
-    var newDay = dayModule.create({ number: days.length + 1 }); // dayModule
-    days.push(newDay);
-    if (days.length === 1) {
+    numDays++;
+    var newDay = dayModule.create({ number: numDays }); // dayModule
+    if (numDays === 1) {
       currentDay = newDay;
     }
     switchTo(newDay);
+    // save to database
+    $.post('/api/days/'+newDay.number)
+    .catch( console.error.bind(console) );
   }
 
   function deleteCurrentDay () {
-    // prevent deleting last day
-    if (days.length < 2 || !currentDay) return;
-    // remove from the collection
-    var index = days.indexOf(currentDay),
-      previousDay = days.splice(index, 1)[0],
-      newCurrent = days[index] || days[index - 1];
-    // fix the remaining day numbers
-    days.forEach(function (day, i) {
-      day.setNumber(i + 1);
-    });
-    switchTo(newCurrent);
-    previousDay.hideButton();
+    // // prevent deleting last day
+    // if (numDays < 2 || !currentDay) return;
+    // // remove from the collection
+    // var index = days.indexOf(currentDay),
+    //   previousDay = days.splice(index, 1)[0],
+    //   newCurrent = days[index] || days[index - 1];
+    // // fix the remaining day numbers
+    // days.forEach(function (day, i) {
+    //   day.setNumber(i + 1);
+    var perviousDay = currentDay;
+    var url = '/api/days/' + currentDay.number;
+    $.ajax({
+        url: url,
+        type: 'DELETE',
+        })
+    .then (function(day){
+      if (!day) {
+        addDay();
+      }
+      else {
+        newDay = dayModule.create(day);
+        switchTo(newDay);
+     }
+     previousDay.hideButton();
+    })
+    .catch( console.error.bind(console) );
   }
 
   // globally accessible module methods
-
   var publicAPI = {
 
     load: function () {
-      $(addDay);
+      $.get('/api/days/')
+      .then (function(returnedDays){
+        if (returnedDays) {
+          console.log("Returned days: ",returnedDays);
+          returnedDays.forEach(function(curVal, index) {
+              dayButtons.push(new dayButton(index));
+          }
+          numDays = returnedDays.length - 1;
+          currentDay = dayModule.create(returnedDays[0]);
+          switchTo(currentDay);
+        }
+        else {
+          $(addDay);
+        }
+      })
     },
 
     switchTo: switchTo,
 
     addToCurrent: function (attraction) {
       currentDay.addAttraction(attraction);
+      $.post('/api/days/'+ currentDay.number + '/add/' + attraction.type, {id: attraction.id});
+      console.log("In addToCurrent. Attraction is: ", attraction);
     },
 
     removeFromCurrent: function (attraction) {

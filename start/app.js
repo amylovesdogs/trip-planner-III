@@ -28,6 +28,9 @@ app.use(express.static(path.join(__dirname, '/public')));
 // serve dynamic routes
 app.use(require('./routes'));
 
+app.use('/api/days', require('./routes/api/days'));
+app.use('/api', require('./routes/api/attractions'));
+
 // failed to catch req above means 404, forward to error handler
 app.use(function (req, res, next) {
   var err = new Error('Not Found');
@@ -45,7 +48,7 @@ app.use(function (err, req, res, next) {
 });
 
 // listen on a port
-var port = 3000;
+var port = 3001;
 app.listen(port, function () {
   console.log('The server is listening closely on port', port);
   db.sync()

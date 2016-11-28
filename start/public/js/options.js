@@ -8,6 +8,7 @@
  * that attraction's id. Selecting an option looks up the attraction by id,
  * then tells the trip module to add the attraction.
  */
+var hotels, restaurants, activities;
 
 $(function(){
 
@@ -17,10 +18,35 @@ $(function(){
   var $restaurantSelect = $optionsPanel.find('#restaurant-choices');
   var $activitySelect = $optionsPanel.find('#activity-choices');
 
+  var getHotelsPromise = $.get('/api/hotels')
+  .then(function (returnedHotels) {
+        hotels = returnedHotels;
+        hotels.forEach(makeOption, $hotelSelect);
+  });
+  var getRestaurantPromise = $.get('/api/restaurants')
+  .then(function (returnedRestaurants) {
+          restaurants = returnedRestaurants;
+          restaurants.forEach(makeOption, $restaurantSelect);
+  });
+  var getActivitiesPromise = $.get('/api/activities')
+  .then(function (returnedActivities) {
+          activities = returnedActivities;
+          activities.forEach(makeOption, $activitySelect);
+  });
+  var promises = [getHotelsPromise, getRestaurantPromise, getActivitiesPromise];
+
+
+  Promise.all(promises)
+  .then (function () {
+          attractionsModule.setUpEnhanced();
+  })
+  .catch( console.error.bind(console) );
+
+
   // make all the option tags (second arg of `forEach` is a `this` binding)
-  hotels.forEach(makeOption, $hotelSelect);
-  restaurants.forEach(makeOption, $restaurantSelect);
-  activities.forEach(makeOption, $activitySelect);
+  // hotels.forEach(makeOption, $hotelSelect);
+  // restaurants.forEach(makeOption, $restaurantSelect);
+  // activities.forEach(makeOption, $activitySelect);
 
   function makeOption (databaseAttraction) {
     var $option = $('<option></option>') // makes a new option tag
@@ -38,5 +64,5 @@ $(function(){
     var attraction = attractionsModule.getByTypeAndId(type, id);
     tripModule.addToCurrent(attraction);
   });
-
 });
+
